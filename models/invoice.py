@@ -11,7 +11,7 @@ class InvoiceModel(models.Model):
     invoice_date = fields.Date(string="Дата накладной", required=True)
     order_date = fields.Date(string="Дата ордера", readonly=True)
     invoice_lines = fields.One2many("invoice_line.test", "invoice_id", string="Спецификация", required=True)
-    is_received = fields.Boolean(string="Оприходовано", default=False,readonly=True)
+    is_received = fields.Boolean(string="Оприходовано", default=False, readonly=True)
     stock_order_id = fields.Many2one("order.test", string="Складской ордер", readonly=True)
 
     @api.depends('invoice_lines.amount')
