@@ -7,10 +7,10 @@
     'category': 'Custom',
     'depends': ['base','product','account','purchase','sale','hr','stock','stock_account'],
     'data':[
-        'security/ir.model.access.csv',
         'views/menu.xml',
         'views/order.xml',
         'views/invoice.xml',
+        'security/ir.model.access.csv',
 
     ],
 
