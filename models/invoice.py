@@ -21,21 +21,15 @@ class InvoiceModel(models.Model):
         for record in self:
             record.total_amount = sum(record.invoice_lines.mapped('amount'))
 
-        """
-        Функционал дублирование накладной
-        Особенность: не клонируется спецификация
-        """
+        # Дублирование накладной
+
     @api.model
     def create(self, vals):
-        invoice_lines = vals.get('invoice_lines', [])
         new_vals = vals.copy()
         new_invoice = super(InvoiceModel, self).create(new_vals)
 
         if vals.get('is_received', False):
             new_invoice.write({'is_received': False})
-
-        if invoice_lines:
-            new_invoice.write({'invoice_lines': [(6, 0, invoice_lines)]})
 
         return new_invoice
 
