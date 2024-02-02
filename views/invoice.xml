@@ -26,6 +26,7 @@
                 </tree>
             </field>
         </record>
+
         <record id="view_invoice_test_form" model="ir.ui.view">
             <field name="name">invoice.test.form</field>
             <field name="model">invoice.test</field>
@@ -39,7 +40,7 @@
                     </header>
                     <sheet>
                         <group>
-                            <field name="is_received" attrs="{'readonly': [('is_received', '=', True)]}"/>
+                            <field name="is_received" attrs="{'readonly': True}"/>
                             <field name="organization_id" attrs="{'readonly': [('is_received', '=', True)]}"/>
                             <field name="total_amount"/>
                             <field name="warehouse_id" attrs="{'readonly': [('is_received', '=', True)]}"/>
@@ -47,14 +48,25 @@
                             <field name="order_date"/>
                         </group>
                         <notebook>
-                            <page string="Спецификация" >
-                                <field name="invoice_lines" mode="tree" attrs="{'readonly': [('is_received', '=', True)]}">
+                            <page string="Спецификация">
+                                <field name="invoice_lines" mode="tree"
+                                       attrs="{'readonly': [('is_received', '=', True)]}">
                                     <tree>
                                         <field name="product"/>
                                         <field name="quantity"/>
                                         <field name="price"/>
                                         <field name="amount"/>
                                     </tree>
+                                    <form copy="1" string="Invoice Line" view_mode="form">
+                                        <sheet>
+                                            <group>
+                                                <field name="product"/>
+                                                <field name="quantity"/>
+                                                <field name="price"/>
+                                                <field name="amount"/>
+                                            </group>
+                                        </sheet>
+                                    </form>
                                 </field>
                             </page>
                         </notebook>

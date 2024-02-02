@@ -1,11 +1,13 @@
 from odoo import api, fields, models
+from odoo.exceptions import UserError
 
 
 class InvoiceModel(models.Model):
     _name = "invoice.test"
     _description = "Приходная накладная"
 
-    organization_id = fields.Many2one('res.partner', string="Организация", required=True)
+    organization_id = fields.Many2one('res.partner', string="Организация", required=True,
+                                      domain="[('is_company', '=', True)]")
     total_amount = fields.Float(string="Сумма документа", compute='_compute_total_amount', required=True)
     warehouse_id = fields.Many2one('stock.warehouse', string="Склад поступления", required=True)
     invoice_date = fields.Date(string="Дата накладной", required=True)
@@ -19,8 +21,34 @@ class InvoiceModel(models.Model):
         for record in self:
             record.total_amount = sum(record.invoice_lines.mapped('amount'))
 
+        """
+        Дублирование накладной
+        !!!не клонируется спецификация!!!
+        """
+    @api.model
+    def create(self, vals):
+        invoice_lines = vals.get('invoice_lines', [])
+        new_vals = vals.copy()
+        new_invoice = super(InvoiceModel, self).create(new_vals)
+
+        if vals.get('is_received', False):
+            new_invoice.write({'is_received': False})
+
+        if invoice_lines:
+            new_invoice.write({'invoice_lines': [(6, 0, invoice_lines)]})
+
+        return new_invoice
+
+    def unlink(self):
+        for record in self:
+            if record.is_received:
+                raise models.ValidationError('Нельзя удалять оприходованные документы')
+        return super(InvoiceModel, self).unlink()
+
     def action_confirm(self):
         if not self.is_received:
+            if not self.invoice_lines:
+                raise UserError("Заполните спецификацию перед оприходованием")
             # Оприходовать документ
             self.is_received = True
             self.create_stock_order()
@@ -53,6 +81,8 @@ class InvoiceModel(models.Model):
         stock_order.order_lines = [(6, 0, order_lines)]
         self.stock_order_id = stock_order.id
         self.order_date = fields.Date.today()
+
+    # def copy_invoice(self):
 
     def delete_stock_order(self):
         print("Удаление складского ордера")
