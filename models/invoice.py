@@ -22,8 +22,8 @@ class InvoiceModel(models.Model):
             record.total_amount = sum(record.invoice_lines.mapped('amount'))
 
         """
-        Дублирование накладной
-        !!!не клонируется спецификация!!!
+        Функционал дублирование накладной
+        Особенность: не клонируется спецификация
         """
     @api.model
     def create(self, vals):
